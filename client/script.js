@@ -11,16 +11,18 @@ function loader(element){
   element.textContent = '';
 
   loadInterval=setInterval(()=>{
+    // Update the text content of the loading indicator
     element.textContent += '.';
-    
-    if(element.textContent==='....'){
-      element.textContent = '';
+
+    // If the loading indicator has reached three dots, reset it
+    if (element.textContent === '....') {
+        element.textContent = '';
     }
   }, 300);
 }
 
 // Function to type text letter by letter
-function typeText(element){
+function typeText(element, text){
   let index=0;
 
   let interval = setInterval(()=>{
@@ -56,7 +58,7 @@ function chatStripe(isAi, value, uniqueId){
             alt="${isAi ? 'bot' : 'user' }'" 
             />
         </div>
-        <div class="message" id="${uniqueId}">${value}</div>
+        <div class="message" id=${uniqueId}>${value}</div>
       </div>
     </div>
   
@@ -85,13 +87,37 @@ const handleSubmit = async (e) =>{
 
   loader(messageDiv);
 
+  // Fetch teh bot's response
+ const response = await fetch('http://localhost:5000',{
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body:JSON.stringify({
+        prompt: data.get('prompt')
+      })
+    })
+    clearInterval(loadInterval); //As nothing would be loading after a data fetch
+    messageDiv.innerHTML=' ';//It is not sure which part  of the loading is the code currently in
+
+    if(response.ok){
+      const data = await response.json(); //Actual response coming from the backend
+      const parsedData = data.bot.trim();
+
+      typeText(messageDiv, parsedData);
+    }else{
+      const err = await response.text();
+      messageDiv.innerHTML = "Something went wrong";
+
+      alert(err);
+    }
 }
 
 // Event Listener for submitting using the submit button
 form.addEventListener('submit', handleSubmit);
 // Event Listener for submitting by pressing the enter key
 form.addEventListener('keyup',(e)=>{
-  if(e.keyCode === 13){ // 13 => Enterkey
+  if(e.keyCode === 13){ // 13 => Enter key
     handleSubmit(e);
   }
 });
