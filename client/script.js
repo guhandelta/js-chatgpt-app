@@ -88,7 +88,7 @@ const handleSubmit = async (e) =>{
   loader(messageDiv);
 
   // Fetch teh bot's response
- const response = await fetch('http://localhost:5000',{
+ const response = await fetch('https://codex-ydtd.onrender.com',{
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
